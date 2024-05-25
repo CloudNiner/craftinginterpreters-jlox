@@ -1,5 +1,6 @@
 package com.craftinginterpreters;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,6 +62,8 @@ public class Scanner {
                     addToken(SLASH);
                 }
                 break;
+            // Literals
+            case '"': string(); break;
             // Ignore whitespace
             case ' ':
             case '\r':
@@ -74,7 +77,7 @@ public class Scanner {
     }
 
     private char advance() {
-        // current++ returns the current value of the var, _then_ increments afterwards
+        // current++ returns the current value of the var, _then_ increments afterward
         return source.charAt(current++);
     }
 
@@ -96,6 +99,31 @@ public class Scanner {
         if (isAtEnd()) return '\0';
 
         return source.charAt(current);
+    }
+
+    /**
+     * Scan for end of string and save the string value minus quotes to Token object property
+     *
+     * We support multiline strings because it's a little easier that not doing so.
+     * TODO: Single line strings only!
+     */
+    private void string() {
+        while (peekNext() != '"' && !isAtEnd()) {
+            if (peekNext() == '\n') {
+                line++;
+            }
+            advance();
+        }
+        if (isAtEnd()) {
+            Lox.report(line, "", MessageFormat.format("Unterminated string literal starting at line {0}, source char {1}", line, start));
+            return;
+        }
+
+        advance();  // The closing "
+
+        // Trim the surrounding quotes
+        var theString = source.substring(start + 1, current - 1);
+        addToken(STRING, theString);
     }
 
     private void addToken(TokenType tokenType) {

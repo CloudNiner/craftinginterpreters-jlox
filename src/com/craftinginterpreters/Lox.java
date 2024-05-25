@@ -55,7 +55,7 @@ public class Lox {
 
     // TODO: Refactor hadError into some kind of error reporting interface that can be
     //       passed to operations in run()
-    private static void report(int line, String where, String message) {
+    public static void report(int line, String where, String message) {
         System.err.println("[line " + line + "] Error" + where + ": " + message);
         hadError = true;
     }
