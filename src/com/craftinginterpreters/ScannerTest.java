@@ -77,19 +77,19 @@ class ScannerTest {
     }
 
     @Test
-    void testStringLexemeOneLine() {
-        var scanner = new Scanner("+ \"foo\" ");
+    void testStringLiteralOneLine() {
+        var scanner = new Scanner("+ \"foo+-*/\" ");
         var actual = scanner.scanTokens();
         var expected = List.of(
                 new Token(TokenType.PLUS, "+", null, 1),
-                new Token(TokenType.STRING, "\"foo\"", "foo", 1),
+                new Token(TokenType.STRING, "\"foo+-*/\"", "foo+-*/", 1),
                 new Token(TokenType.EOF, "", null, 1)
         );
         assertTokensEqual(expected, actual);
     }
 
     @Test
-    void testStringLexemeTwoLines() {
+    void testStringLiteralTwoLines() {
         var scanner = new Scanner("+ \"f\noo\" ");
         var actual = scanner.scanTokens();
         var expected = List.of(
@@ -101,7 +101,7 @@ class ScannerTest {
     }
 
     @Test
-    void testStringLexemeEOF() {
+    void testStringLiteralEOF() {
         var scanner = new Scanner("+ \"foo ");
         var actual = scanner.scanTokens();
         var expected = List.of(
@@ -110,6 +110,56 @@ class ScannerTest {
         );
         assertTokensEqual(expected, actual);
         assertTrue(Lox.hadError);
+    }
+
+    @Test
+    void testNumberLiteralInt() {
+        var scanner = new Scanner("+ 123");
+        var actual = scanner.scanTokens();
+        var expected = List.of(
+                new Token(TokenType.PLUS, "+", null, 1),
+                new Token(TokenType.NUMBER, "123", 123., 1),
+                new Token(TokenType.EOF, "", null, 1)
+        );
+        assertTokensEqual(expected, actual);
+    }
+
+    @Test
+    void testNumberLiteralDouble() {
+        var scanner = new Scanner("+ 12.3");
+        var actual = scanner.scanTokens();
+        var expected = List.of(
+                new Token(TokenType.PLUS, "+", null, 1),
+                new Token(TokenType.NUMBER, "12.3", 12.3, 1),
+                new Token(TokenType.EOF, "", null, 1)
+        );
+        assertTokensEqual(expected, actual);
+    }
+
+    @Test
+    void testNumberLiteralCannotStartWithDot() {
+        var scanner = new Scanner("+ .123");
+        var actual = scanner.scanTokens();
+        var expected = List.of(
+                new Token(TokenType.PLUS, "+", null, 1),
+                new Token(TokenType.DOT, ".", null, 1),
+                new Token(TokenType.NUMBER, "123", 123., 1),
+                new Token(TokenType.EOF, "", null, 1)
+        );
+        assertTokensEqual(expected, actual);
+    }
+
+    @Test
+    void testNumberLiteralCannotEndWithDot() {
+        var scanner = new Scanner("+ 123.");
+        var actual = scanner.scanTokens();
+        var expected = List.of(
+                new Token(TokenType.PLUS, "+", null, 1),
+                new Token(TokenType.NUMBER, "123", 123., 1),
+                new Token(TokenType.DOT, ".", null, 1),
+                new Token(TokenType.EOF, "", null, 1)
+        );
+        assertTokensEqual(expected, actual);
     }
 
     private void assertTokensEqual(List<Token> expected, List<Token> actual) {

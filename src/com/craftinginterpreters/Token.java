@@ -1,5 +1,7 @@
 package com.craftinginterpreters;
 
+// TODO: equals() and hashCode() so we don't need the hack assertTokenEquals in our tests!
+
 public class Token {
     final TokenType type;
     final String lexeme;

@@ -64,6 +64,16 @@ public class Scanner {
                 break;
             // Literals
             case '"': string(); break;
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+            case '0': number(); break;
             // Ignore whitespace
             case ' ':
             case '\r':
@@ -96,9 +106,14 @@ public class Scanner {
     }
 
     private char peekNext() {
-        if (isAtEnd()) return '\0';
+        return peekAhead(0);
+    }
 
-        return source.charAt(current);
+    private char peekAhead(int count) {
+        var ahead = Math.abs(count);
+        if (current + ahead >= source.length()) return '\0';
+
+        return source.charAt(current + ahead);
     }
 
     /**
@@ -124,6 +139,29 @@ public class Scanner {
         // Trim the surrounding quotes
         var theString = source.substring(start + 1, current - 1);
         addToken(STRING, theString);
+    }
+
+    /**
+     * Scan for number literal -- a series of digits optionally followed by
+     * a '.' and one or more trailing decimal digits.
+     *
+     * A lox number literal cannot start or end with a '.' -- this makes things weird
+     * if we allow things like calling functions on number literals. For example: `4.sqrt()`
+     */
+    private void number() {
+        while (Character.isDigit(peekNext())) {
+            advance();
+        }
+
+        if (peekNext() == '.' && Character.isDigit(peekAhead(1))) {
+            advance();
+
+            while (Character.isDigit(peekNext())) {
+                advance();
+            }
+        }
+
+        addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
 
     private void addToken(TokenType tokenType) {
