@@ -2,6 +2,7 @@ package com.craftinginterpreters;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.craftinginterpreters.TokenType.*;
@@ -82,6 +83,12 @@ public class Scanner {
             case '\n':
                 line++;
                 break;
+            default:
+                if (Character.isAlpha(currentChar)) {
+                    identifier();
+                } else {
+                    Lox.report(line, "", MessageFormat.format("Unexpected character {0}", peekNext()));
+                }
         }
 
     }
@@ -164,6 +171,19 @@ public class Scanner {
         addToken(NUMBER, Double.parseDouble(source.substring(start, current)));
     }
 
+    private void identifier() {
+        while (Character.isAlphaNumeric(peekNext())) {
+            advance();
+        }
+
+        var lexeme = source.substring(start, current);
+        var tokenType = keywords.get(lexeme);
+        if (tokenType == null) {
+            tokenType = IDENTIFIER;
+        }
+        addToken(tokenType, lexeme);
+    }
+
     private void addToken(TokenType tokenType) {
         addToken(tokenType, null);
     }
@@ -178,5 +198,27 @@ public class Scanner {
         start = 0;
         current = 0;
         line = 1;
+    }
+
+    private static final HashMap<String, TokenType> keywords;
+
+    static {
+        keywords = new HashMap<>();
+        keywords.put("and",    AND);
+        keywords.put("class",  CLASS);
+        keywords.put("else",   ELSE);
+        keywords.put("false",  FALSE);
+        keywords.put("for",    FOR);
+        keywords.put("fun",    FUN);
+        keywords.put("if",     IF);
+        keywords.put("nil",    NIL);
+        keywords.put("or",     OR);
+        keywords.put("print",  PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super",  SUPER);
+        keywords.put("this",   THIS);
+        keywords.put("true",   TRUE);
+        keywords.put("var",    VAR);
+        keywords.put("while",  WHILE);
     }
 }

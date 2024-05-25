@@ -162,6 +162,23 @@ class ScannerTest {
         assertTokensEqual(expected, actual);
     }
 
+    @Test
+    void testIdentifier() {
+        var scanner = new Scanner("var foo = 123 + \"bar\";");
+        var actual = scanner.scanTokens();
+        var expected = List.of(
+                new Token(TokenType.VAR, "var", "var", 1),
+                new Token(TokenType.IDENTIFIER, "foo", "foo", 1),
+                new Token(TokenType.EQUAL, "=", null, 1),
+                new Token(TokenType.NUMBER, "123", 123., 1),
+                new Token(TokenType.PLUS, "+", null, 1),
+                new Token(TokenType.STRING, "\"bar\"", "bar", 1),
+                new Token(TokenType.SEMICOLON, ";", null, 1),
+                new Token(TokenType.EOF, "", null, 1)
+        );
+        assertTokensEqual(expected, actual);
+    }
+
     private void assertTokensEqual(List<Token> expected, List<Token> actual) {
         assertArrayEquals(expected.stream().map(Token::toString).toArray(), actual.stream().map(Token::toString).toArray());
     }
