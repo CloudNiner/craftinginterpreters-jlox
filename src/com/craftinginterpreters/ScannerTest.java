@@ -179,6 +179,23 @@ class ScannerTest {
         assertTokensEqual(expected, actual);
     }
 
+    @Test
+    void testBlockComment() {
+        var scanner = new Scanner("var foo = /* this is an i\nnline comment */ 123 + \"bar\";");
+        var actual = scanner.scanTokens();
+        var expected = List.of(
+                new Token(TokenType.VAR, "var", "var", 1),
+                new Token(TokenType.IDENTIFIER, "foo", "foo", 1),
+                new Token(TokenType.EQUAL, "=", null, 1),
+                new Token(TokenType.NUMBER, "123", 123., 2),
+                new Token(TokenType.PLUS, "+", null, 2),
+                new Token(TokenType.STRING, "\"bar\"", "bar", 2),
+                new Token(TokenType.SEMICOLON, ";", null, 2),
+                new Token(TokenType.EOF, "", null, 2)
+        );
+        assertTokensEqual(expected, actual);
+    }
+
     private void assertTokensEqual(List<Token> expected, List<Token> actual) {
         assertArrayEquals(expected.stream().map(Token::toString).toArray(), actual.stream().map(Token::toString).toArray());
     }

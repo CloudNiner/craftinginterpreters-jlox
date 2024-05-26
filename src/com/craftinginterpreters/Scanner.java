@@ -58,7 +58,9 @@ public class Scanner {
             case '/':
                 // A comment: `//` -- ignore characters until end of line
                 if (matchNext('/')) {
-                    while(peekNext() != '\n' && !isAtEnd()) advance();
+                    while (peekNext() != '\n' && !isAtEnd()) advance();
+                } else if (matchNext('*')) {
+                    blockComment();
                 } else {
                     addToken(SLASH);
                 }
@@ -182,6 +184,19 @@ public class Scanner {
             tokenType = IDENTIFIER;
         }
         addToken(tokenType, lexeme);
+    }
+
+    private void blockComment() {
+        while (!(peekNext() == '*' && peekAhead(1) == '/') && !isAtEnd()) {
+            if (peekNext() == '\n') {
+                line++;
+            }
+            advance();
+        }
+
+        // The closing `*/`
+        advance();
+        advance();
     }
 
     private void addToken(TokenType tokenType) {
