@@ -187,11 +187,23 @@ public class Scanner {
     }
 
     private void blockComment() {
-        while (!(peekNext() == '*' && peekAhead(1) == '/') && !isAtEnd()) {
+        var nestingCount = 1;
+
+        while (nestingCount > 0 && !isAtEnd()) {
+            if (peekNext() == '/' && peekAhead(1) == '*') {
+                nestingCount++;
+            } else if (peekNext() == '*' && peekAhead(1) == '/') {
+                nestingCount--;
+            }
             if (peekNext() == '\n') {
                 line++;
             }
             advance();
+        }
+
+        if (isAtEnd()) {
+            Lox.report(line, "", MessageFormat.format("Unterminated block comment starting at source char {0}", start));
+            return;
         }
 
         // The closing `*/`
